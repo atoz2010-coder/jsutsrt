@@ -1,0 +1,51 @@
+{% extends "main_dashboard_layout.html" %}
+{% block title %}개요 - {{guild_name}}{% endblock %}
+
+{% block dashboard_content %}
+    <h2 class="content-title">{{ guild_name }} 개요</h2>
+    <p class="content-description">선택하신 서버의 봇 운영 상태 및 주요 정보를 확인하세요.</p>
+
+    <div class="dashboard-widgets">
+        <div class="widget">
+            <h3>봇 운영 상태</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>봇 이름</th>
+                        <th>상태</th>
+                        <th>마지막 하트비트 (KST)</th>
+                        <th>메시지</th>
+                        <th>서버 개수</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for status in bot_statuses %}
+                    <tr>
+                        <td>{{ status.bot_name }}</td>
+                        <td style="color: {% if status.status == 'Online' %}#28a745{% else %}#dc3545{% endif %}; font-weight: bold;">
+                            {{ status.status }}
+                        </td>
+                        <td>{{ status.last_heartbeat_kst }}</td>
+                        <td>{{ status.message }}</td>
+                        <td>{{ status.guild_count }}</td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="5">봇 상태 정보가 없습니다. 봇이 실행 중인지 확인해주세요.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        {# 여기에 다른 위젯들을 추가할 수 있습니다 (예: 최근 경고, 최근 차량 등록 요청 등) #}
+        <div class="widget">
+            <h3>빠른 링크</h3>
+            <ul class="quick-links">
+                <li><a href="{{ url_for('settings_list', guild_id=guild_id) }}">서버 설정 바로가기</a></li>
+                <li><a href="{{ url_for('moderation_data', guild_id=guild_id) }}">모더레이션 데이터 확인</a></li>
+                <li><a href="{{ url_for('bank_data', guild_id=guild_id) }}">은행 데이터 확인</a></li>
+            </ul>
+        </div>
+    </div>
+{% endblock %}

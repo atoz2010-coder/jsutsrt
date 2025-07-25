@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block title %}서버 선택{% endblock %}
+
+{% block content %}
+    <div class="content-header">
+        <h2 class="content-title">관리할 Discord 서버를 선택하세요</h2>
+        <p class="content-description">저스트봇이 초대되어 있고, 당신이 관리자 권한을 가진 서버 목록입니다.</p>
+        {% if current_user.username == dashboard_admin_username %}
+            <p class="admin-note">
+                (💡 Discord 계정로그인시  본인이 관리하는 서버만 표시됩니다.)
+            </p>
+        {% endif %}
+    </div>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <ul class="flashes">
+                {% for category, message in messages %}
+                    <li class="{{ category }}">{{ message }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+    {% endwith %}
+
+    <div class="server-grid">
+        {% for guild in guilds %}
+            <a href="{{ url_for('dashboard', guild_id=guild.id) }}" class="server-item">
+                <div class="server-icon-placeholder">
+                    {# TODO: 실제 길드 아이콘 URL을 가져올 수 있으면 사용 #}
+                    {% if guild.icon_url %}
+                        <img src="{{ guild.icon_url }}" alt="{{ guild.name}} 아이콘">
+                    {% else %}
+                        <img src="{{ url_for('static', filename='discord-icon-placeholder.png') }}" alt="기본 아이콘">
+                    {% endif %}
+                </div>
+                <div class="server-name">{{ guild.name }}</div>
+                <div class="server-id">ID: {{ guild.id }}</div>
+            </a>
+        {% else %}
+            <div class="no-servers">
+                <p>현재 관리 가능한 서버가 없습니다.</p>
+                <p>저스트봇을 Discord 서버에 초대하고, 해당 서버에서 관리자 권한을 부여한 후 다시 시도해주세요.</p>
+                <p>봇 초대 링크: <a href="https://invitejbot.infy.uk" target="_blank">https://invitejbot.infy.uk</a></p>
+            </div>
+        {% endfor %}
+    </div>
+{% endblock %}

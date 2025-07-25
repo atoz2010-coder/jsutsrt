@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+{% block title %}서버 설정 목록{% endblock %}
+{% block content %}
+    <h2>서버 설정 목록</h2>
+    <p>아래는 봇이 추가된 서버 목록입니다. 각 서버의 설정을 편집하려면 '편집'을 클릭하세요.</p>
+    <table>
+        <thead>
+            <tr>
+                <th>서버 이름</th> {# <-- '서버 ID'에서 '서버 이름'으로 변경 #}
+                <th>서버 ID</th>
+                <th>설정 상태</th>
+                <th>액션</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for guild in guilds %}
+            <tr>
+                <td>{{ guild.name }}</td> {# <-- guild.name 표시 #}
+                <td>{{ guild.id }}</td>
+                <td>
+                    편집 필요 📝
+                </td>
+                <td><a href="{{ url_for('edit_settings', guild_id=guild.id) }}">편집</a></td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="4">저장된 서버 설정이 없습니다. 봇을 Discord 서버에 추가한 후, 해당 서버에서 명령어를 사용하면 자동으로 목록에 추가됩니다.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    {# 슈퍼 관리자(dashboard_admin_username)만 볼 수 있는 봇 상태 설정 섹션 #}
+    {% if current_user.username == dashboard_admin_username %} {# <-- 이 부분 수정! #}
+    <h2 style="margin-top: 40px;">봇 상태 및 활동 설정</h2>
+    <p>봇의 Discord 상태(온라인, 자리 비움 등)와 활동 메시지를 설정합니다. 이 설정은 **전역적**으로 적용됩니다.</p>
+    <form id="botPresenceForm" method="POST" action="{{ url_for('bot_presence_api') }}"> {# action은 API 엔드포인트 #}
+        <div class="form-group">
+            <label for="status">봇 상태:</label>
+            <select id="status" name="status">
+                <option value="online" {% if bot_presence_settings.status == 'online' %}selected{% endif %}>온라인</option>
+                <option value="idle" {% if bot_presence_settings.status == 'idle' %}selected{% endif %}>자리 비움</option>
+                <option value="dnd" {% if bot_presence_settings.status == 'dnd' %}selected{% endif %}>방해 금지</option>
+                <option value="invisible" {% if bot_presence_settings.status == 'invisible' %}selected{% endif %}>오프라인 표시</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="activity_type">활동 유형:</label>
+            <select id="activity_type" name="activity_type">
+                <option value="playing" {% if bot_presence_settings.activity_type == 'playing' %}selected{% endif %}>플레이 중</option>
+                <option value="streaming" {% if bot_presence_settings.activity_type == 'streaming' %}selected{% endif %}>스트리밍 중</option>
+                <option value="listening" {% if bot_presence_settings.activity_type == 'listening' %}selected{% endif %}>듣는 중</option>
+                <option value="watching" {% if bot_presence_settings.activity_type == 'watching' %}selected{% endif %}>시청 중</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="activity_name">활동 메시지:</label>
+            <input type="text" id="activity_name" name="activity_name" value="{{ bot_presence_settings.activity_name }}">
+        </div>
+        <button type="submit" class="save-button">봇 상태 저장</button>
+    </form>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('botPresenceForm').addEventListener('submit', async function(event) {
+                event.preventDefault(); // 기본 폼 제출 방지
+
+                const form = event.target;
+                const formData = new FormData(form);
+                const jsonData = {};
+                formData.forEach((value, key) => {
+                    jsonData[key] = value;
+                });
+
+                try {
+                    const response = await fetch(form.action, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(jsonData)
+                    });
+
+                    const result = await response.json();
+
+                    if (response.ok) {
+                        alert(result.message); // 성공 메시지 표시
+                        // 선택 사항: 페이지 새로고침 또는 UI 업데이트
+                    } else {
+                        alert('오류: ' + (result.error || '봇 상태 저장 실패')); // 오류 메시지 표시
+                    }
+                } catch (error) {
+                    console.error('Error submitting form:', error);
+                    alert('네트워크 오류 또는 서버 응답 문제 발생');
+                }
+            });
+        });
+    </script>
+    {% endif %}
+{% endblock %}

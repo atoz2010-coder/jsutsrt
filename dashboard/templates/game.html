@@ -1,0 +1,44 @@
+{% extends "main_dashboard_layout.html" %}
+{% block title %}게임 - {{guild_name}}{% endblock %}
+
+{% block dashboard_content %}
+    <h2 class="content-title">{{ guild_name }} 게임 데이터</h2>
+    <p class="content-description">서버 내 사용자들의 미니게임 플레이 통계를 확인합니다.</p>
+
+    <div class="dashboard-data-section">
+        {% if game_stats %}
+        <table>
+            <thead>
+                <tr>
+                    <th>게임 유형</th>
+                    <th>사용자 이름</th>
+                    <th>결과</th>
+                    <th>플레이 시간</th>
+                    <th>추가 정보</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for game in game_stats %}
+                <tr>
+                    <td>{{ game.game_type }}</td>
+                    <td>{{ game.username }}</td>
+                    <td>{{ game.result }}</td>
+                    <td>{{ game.timestamp.split('T')[0] }}</td>
+                    <td>
+                        {% if game.game_type == "주사위" %}
+                            {{ game.sides }}면 주사위, {{ game.result }} 나옴
+                        {% elif game.game_type == "가위바위보" %}
+                            내 선택: {{ game.user_choice }}, 봇 선택: {{ game.bot_choice }}
+                        {% else %}
+                            -
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p>게임 통계 정보가 없습니다.</p>
+        {% endif %}
+    </div>
+{% endblock %}

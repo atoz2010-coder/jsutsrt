@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>저스트봇 로그인</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
+</head>
+<body class="login-page"> {# 로그인 페이지에만 고유한 클래스 추가 #}
+    <header>
+        <div class="header-content">
+            <div class="logo">
+                <img src="{{ url_for('static', filename='discord-logo.png') }}" alt="Discord Logo" class="header-logo">
+                저스트봇
+            </div>
+            <nav class="main-nav">
+                <ul>
+                    {# 로그인 페이지에서는 '서버 선택'만 노출 (로그인 후 이동) #}
+                    <li><a href="{{ url_for('select_server') }}">서버 선택</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+    <main>
+        <div class="login-container">
+            <div id="discord-login-section" class="discord-login-section"> {# Discord 로그인 섹션에 ID 추가 #}
+                <h2>로그인</h2>
+                <p>Discord 계정으로 간편하게 로그인하세요.</p>
+                <a href="{{ discord_oauth_url }}" class="main-login-button discord-button" id="discord-login-button"> {# 버튼에 ID 추가 #}
+                    <img src="{{ url_for('static', filename='discord-logo.png') }}" alt="Discord Logo">
+                    Discord로 로그인
+                </a>
+            </div>
+
+            <div id="admin-login-section" class="regular-login-section" style="display: none;"> {# 관리자 로그인 섹션에 ID 추가 및 기본 숨김 #}
+                <div class="divider"><span>관리자 로그인</span></div> {# 구분선 텍스트 변경 #}
+                <h3>관리자 계정으로 로그인</h3>
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        <ul class="flashes">
+                            {% for category, message in messages %}
+                                <li class="{{ category }}">{{ message }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                {% endwith %}
+                <form method="POST" action="{{ url_for('login') }}" class="login-form">
+                    <label for="username">사용자 이름</label>
+                    <input type="text" id="username" name="username" required>
+
+                    <label for="password">비밀번호</label>
+                    <input type="password" id="password" name="password" required>
+
+                    <button type="submit" class="main-login-button">로그인</button>
+                </form>
+            </div>
+        </div>
+    </main>
+    <footer>
+        <p>&copy; 2024 저스트봇. all rights reserved.</p>
+        <div class="footer-links">
+            <a href="https://justbot.infy.uk" target="_blank">홈페이지</a>
+            <a href="https://tosjbot.infy.uk" target="_blank">이용약관</a>
+            <a href="https://privacyjbot.infy.uk" target="_blank">개인정보처리방침</a>
+        </div>
+    </footer>
+    <script src="{{ url_for('static', filename='login.js') }}"></script> {# 새로운 JS 파일 연결 #}
+</body>
+</html>

@@ -1,0 +1,272 @@
+{% extends "main_dashboard_layout.html" %} {# Layout 변경됨 #}
+{% block title %}서버 설정 - {{guild_id}}{% endblock %}
+
+{% block dashboard_content %}
+    <h2 class="content-title">서버 설정 관리</h2>
+    <p class="content-description">서버 봇의 각종 설정을 변경할 수 있습니다. (서버 ID: {{ guild_id }})</p>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <ul class="flashes">
+                {% for category, message in messages %}
+                    <li class="{{ category }}">{{ message }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+    {% endwith %}
+
+    <form method="POST" action="{{ url_for('edit_settings', guild_id=guild_id) }}" class="settings-form">
+        <div class="tabs">
+            <button type="button" class="tab-button active" data-tab="general">기본 설정</button>
+            <button type="button" class="tab-button" data-tab="car">차량 봇</button>
+            <button type="button" class="tab-button" data-tab="bank">은행 봇</button>
+            <button type="button" class="tab-button" data-tab="moderation">모더레이션</button>
+            <button type="button" class="tab-button" data-tab="ticket">티켓 시스템</button>
+            <button type="button" class="tab-button" data-tab="commands">명령어 활성화/비활성화</button>
+            {% if current_user.username == dashboard_admin_username %} {# <--- os.getenv("DASHBOARD_ADMIN_USERNAME") 대신 전달받은 변수 사용 #}
+            <button type="button" class="tab-button" data-tab="bot-presence">봇 상태 설정</button>
+            {% endif %}
+        </div>
+
+        {# 기본 설정 탭 #}
+        <div id="general" class="tab-content active">
+            <div class="form-section-title"><h3>기본 설정</h3></div>
+            {% for field in config_fields %}
+                {% if field.section == 'general' %}
+                    <div class="form-group">
+                        <label for="{{ field.name }}">{{ field.label }}</label>
+                        {% if field.type == 'checkbox' %}
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="{{ field.name }}" name="{{ field.name }}" {% if settings[field.name] %}checked{% endif %}>
+                                <span class="slider round"></span>
+                            </label>
+                        {% elif field.type == 'textarea' %}
+                            <textarea id="{{ field.name }}" name="{{ field.name }}" rows="4">{{ settings[field.name] }}</textarea>
+                        {% elif field.type == 'number' %}
+                            <input type="number" id="{{ field.name }}" name="{{ field.name }}" value="{{ settings[field.name] if settings[field.name] is not none }}">
+                        {% else %}
+                            <input type="text" id="{{ field.name }}" name="{{ field.name }}" value="{{ settings[field.name] if settings[field.name] is not none }}">
+                        {% endif %}
+                    </div>
+                {% endif %}
+            {% endfor %}
+        </div>
+
+        {# 차량 봇 설정 탭 #}
+        <div id="car" class="tab-content">
+            <div class="form-section-title"><h3>차량 봇 설정</h3></div>
+            {% for field in config_fields %}
+                {% if field.section == 'car' %}
+                    <div class="form-group">
+                        <label for="{{ field.name }}">{{ field.label }}</label>
+                        {% if field.type == 'checkbox' %}
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="{{ field.name }}" name="{{ field.name }}" {% if settings[field.name] %}checked{% endif %}>
+                                <span class="slider round"></span>
+                            </label>
+                        {% elif field.type == 'textarea' %}
+                            <textarea id="{{ field.name }}" name="{{ field.name }}" rows="4">{{ settings[field.name] }}</textarea>
+                        {% elif field.type == 'number' %}
+                            <input type="number" id="{{ field.name }}" name="{{ field.name }}" value="{{ settings[field.name] if settings[field.name] is not none }}" {% if field.step %}step="{{ field.step }}"{% endif %}>
+                        {% else %}
+                            <input type="text" id="{{ field.name }}" name="{{ field.name }}" value="{{ settings[field.name] if settings[field.name] is not none }}">
+                        {% endif %}
+                    </div>
+                {% endif %}
+            {% endfor %}
+        </div>
+
+        {# 은행 봇 설정 탭 #}
+        <div id="bank" class="tab-content">
+            <div class="form-section-title"><h3>은행 봇 설정</h3></div>
+            {% for field in config_fields %}
+                {% if field.section == 'bank' %}
+                    <div class="form-group">
+                        <label for="{{ field.name }}">{{ field.label }}</label>
+                        {% if field.type == 'checkbox' %}
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="{{ field.name }}" name="{{ field.name }}" {% if settings[field.name] %}checked{% endif %}>
+                                <span class="slider round"></span>
+                            </label>
+                        {% elif field.type == 'textarea' %}
+                            <textarea id="{{ field.name }}" name="{{ field.name }}" rows="4">{{ settings[field.name] }}</textarea>
+                        {% elif field.type == 'number' %}
+                            <input type="number" id="{{ field.name }}" name="{{ field.name }}" value="{{ settings[field.name] if settings[field.name] is not none }}" {% if field.step %}step="{{ field.step }}"{% endif %}>
+                        {% else %}
+                            <input type="text" id="{{ field.name }}" name="{{ field.name }}" value="{{ settings[field.name] if settings[field.name] is not none }}">
+                        {% endif %}
+                    </div>
+                {% endif %}
+            {% endfor %}
+        </div>
+
+        {# 모더레이션 봇 설정 탭 #}
+        <div id="moderation" class="tab-content">
+            <div class="form-section-title"><h3>모더레이션 봇 설정</h3></div>
+            {% for field in config_fields %}
+                {% if field.section == 'moderation' %}
+                    <div class="form-group">
+                        <label for="{{ field.name }}">{{ field.label }}</label>
+                        {% if field.type == 'checkbox' %}
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="{{ field.name }}" name="{{ field.name }}" {% if settings[field.name] %}checked{% endif %}>
+                                <span class="slider round"></span>
+                            </label>
+                        {% elif field.type == 'textarea' %}
+                            <textarea id="{{ field.name }}" name="{{ field.name }}" rows="4">{{ settings[field.name] }}</textarea>
+                        {% elif field.type == 'number' %}
+                            <input type="number" id="{{ field.name }}" name="{{ field.name }}" value="{{ settings[field.name] if settings[field.name] is not none }}" {% if field.step %}step="{{ field.step }}"{% endif %}>
+                        {% else %}
+                            <input type="text" id="{{ field.name }}" name="{{ field.name }}" value="{{ settings[field.name] if settings[field.name] is not none }}">
+                        {% endif %}
+                    </div>
+                {% endif %}
+            {% endfor %}
+            {# 보안 설정 필드도 여기에 포함 (신규 추가) #}
+            {% for field in config_fields %}
+                {% if field.section == 'security' %}
+                    <div class="form-group">
+                        <label for="{{ field.name }}">{{ field.label }}</label>
+                        {% if field.type == 'checkbox' %}
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="{{ field.name }}" name="{{ field.name }}" {% if settings[field.name] %}checked{% endif %}>
+                                <span class="slider round"></span>
+                            </label>
+                        {% elif field.type == 'number' %}
+                            <input type="number" id="{{ field.name }}" name="{{ field.name }}" value="{{ settings[field.name] if settings[field.name] is not none }}" {% if field.step %}step="{{ field.step }}"{% endif %}>
+                        {% else %}
+                            <input type="text" id="{{ field.name }}" name="{{ field.name }}" value="{{ settings[field.name] if settings[field.name] is not none }}">
+                        {% endif %}
+                    </div>
+                {% endif %}
+            {% endfor %}
+        </div>
+
+        {# 티켓 설정 탭 #}
+        <div id="ticket" class="tab-content">
+            <div class="form-section-title"><h3>티켓 시스템 설정</h3></div>
+            {% for field in config_fields %}
+                {% if field.section == 'ticket' %}
+                    <div class="form-group">
+                        <label for="{{ field.name }}">{{ field.label }}</label>
+                        {% if field.type == 'checkbox' %}
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="{{ field.name }}" name="{{ field.name }}" {% if settings[field.name] %}checked{% endif %}>
+                                <span class="slider round"></span>
+                            </label>
+                        {% elif field.type == 'textarea' %}
+                            <textarea id="{{ field.name }}" name="{{ field.name }}" rows="4">{{ settings[field.name] }}</textarea>
+                        {% elif field.type == 'number' %}
+                            <input type="number" id="{{ field.name }}" name="{{ field.name }}" value="{{ settings[field.name] if settings[field.name] is not none }}" {% if field.step %}step="{{ field.step }}"{% endif %}>
+                        {% else %}
+                            <input type="text" id="{{ field.name }}" name="{{ field.name }}" value="{{ settings[field.name] if settings[field.name] is not none }}">
+                        {% endif %}
+                    </div>
+                {% endif %}
+            {% endfor %}
+        </div>
+
+        {# 명령어 활성화/비활성화 탭 #}
+        <div id="commands" class="tab-content">
+            <div class="form-section-title"><h3>명령어 활성화/비활성화</h3></div>
+            <p class="description-text">이 서버에서 각 명령어의 사용 가능 여부를 설정합니다.</p>
+            <div class="command-grid">
+                {% for cmd in commands_with_states %}
+                    <div class="command-item">
+                        <label class="toggle-switch">
+                            <input type="checkbox" name="cmd_{{ cmd.name }}_enabled" {% if cmd.enabled %}checked{% endif %}>
+                            <span class="slider round"></span>
+                        </label>
+                        <span class="command-label">/{{ cmd.name }}</span>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        {# 봇 상태 설정 탭 (슈퍼 관리자만) #}
+        {% if current_user.username == dashboard_admin_username %} {# <-- 수정! #}
+        <div id="bot-presence" class="tab-content">
+            <div class="form-section-title"><h3>봇 상태 및 활동 설정</h3></div>
+            <p class="description-text">봇의 Discord 상태(온라인, 자리 비움 등)와 활동 메시지를 설정합니다. 이 설정은 **전역적**으로 적용되며, 변경 시 몇 분 내로 봇에 반영됩니다.</p>
+            <div class="form-group">
+                <label for="status">봇 상태:</label>
+                <select id="status" name="status">
+                    <option value="online" {% if bot_presence_settings.status == 'online' %}selected{% endif %}>온라인</option>
+                    <option value="idle" {% if bot_presence_settings.status == 'idle' %}selected{% endif %}>자리 비움</option>
+                    <option value="dnd" {% if bot_presence_settings.status == 'dnd' %}selected{% endif %}>방해 금지</option>
+                    <option value="invisible" {% if bot_presence_settings.status == 'invisible' %}selected{% endif %}>오프라인 표시</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="activity_type">활동 유형:</label>
+                <select id="activity_type" name="activity_type">
+                    <option value="playing" {% if bot_presence_settings.activity_type == 'playing' %}selected{% endif %}>플레이 중</option>
+                    <option value="streaming" {% if bot_presence_settings.activity_type == 'streaming' %}selected{% endif %}>스트리밍 중</option>
+                    <option value="listening" {% if bot_presence_settings.activity_type == 'listening' %}selected{% endif %}>듣는 중</option>
+                    <option value="watching" {% if bot_presence_settings.activity_type == 'watching' %}selected{% endif %}>시청 중</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="activity_name">활동 메시지:</label>
+                <input type="text" id="activity_name" name="activity_name" value="{{ bot_presence_settings.activity_name }}">
+            </div>
+        </div>
+        {% endif %}
+
+        <button type="submit" class="save-button">설정 저장</button>
+    </form>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const tabs = document.querySelectorAll('.tab-button');
+            const tabContents = document.querySelectorAll('.tab-content');
+
+            tabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    tabs.forEach(item => item.classList.remove('active'));
+                    tabContents.forEach(content => content.classList.remove('active'));
+
+                    tab.classList.add('active');
+                    const targetTab = tab.dataset.tab;
+                    document.getElementById(targetTab).classList.add('active');
+                });
+            });
+
+            // 봇 상태 설정 탭 전송 (AJAX)
+            const botPresenceForm = document.getElementById('bot-presence-form');
+            if (botPresenceForm) {
+                botPresenceForm.addEventListener('submit', async function(event) {
+                    event.preventDefault();
+
+                    const form = event.target;
+                    const formData = new FormData(form);
+                    const jsonData = {};
+                    formData.forEach((value, key) => {
+                        jsonData[key] = value;
+                    });
+
+                    try {
+                        const response = await fetch(form.action, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify(jsonData)
+                        });
+
+                        const result = await response.json();
+
+                        if (response.ok) {
+                            alert(result.message);
+                        } else {
+                            alert('오류: ' + (result.error || '봇 상태 저장 실패'));
+                        }
+                    } catch (error) {
+                        console.error('Error submitting form:', error);
+                        alert('네트워크 오류 또는 서버 응답 문제 발생');
+                    }
+                });
+            }
+        });
+    </script>
+{% endblock %}

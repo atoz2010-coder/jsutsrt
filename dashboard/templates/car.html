@@ -1,0 +1,40 @@
+{% extends "main_dashboard_layout.html" %}
+{% block title %}차량 - {{guild_name}}{% endblock %}
+
+{% block dashboard_content %}
+    <h2 class="content-title">{{ guild_name }} 차량 데이터</h2>
+    <p class="content-description">서버 내 등록된 차량 신청 내역을 확인합니다.</p>
+
+    <div class="dashboard-data-section">
+        {% if cars %}
+        <table>
+            <thead>
+                <tr>
+                    <th>신청 ID</th>
+                    <th>사용자 이름</th>
+                    <th>차량 이름</th>
+                    <th>등록세 (위키원)</th>
+                    <th>상태</th>
+                    <th>신청 시간</th>
+                    <th>승인/거부 관리자</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for car in cars %}
+                <tr>
+                    <td>{{ car.id }}</td>
+                    <td>{{ car.username }}</td>
+                    <td>{{ car.car_name }}</td>
+                    <td>{{ "{:,}".format(car.registration_tax) }}</td>
+                    <td>{{ car.status }}</td>
+                    <td>{{ car.requested_at.split('T')[0] }}</td>
+                    <td>{% if car.approved_by %}{{ car.approved_by }}{% elif car.rejected_by %}{{ car.rejected_by }}{% else %}대기 중{% endif %}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p>차량 등록 정보가 없습니다.</p>
+        {% endif %}
+    </div>
+{% endblock %}

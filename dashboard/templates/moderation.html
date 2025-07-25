@@ -1,0 +1,71 @@
+{% extends "main_dashboard_layout.html" %}
+{% block title %}모더레이션 - {{guild_name}}{% endblock %}
+
+{% block dashboard_content %}
+    <h2 class="content-title">{{ guild_name }} 모더레이션 데이터</h2>
+    <p class="content-description">서버 내 경고 및 티켓 내역을 확인합니다.</p>
+
+    <div class="dashboard-data-section">
+        <h3>경고 정보</h3>
+        {% if warnings %}
+        <table>
+            <thead>
+                <tr>
+                    <th>사용자 ID</th>
+                    <th>사용자 이름</th>
+                    <th>경고 횟수</th>
+                    <th>최근 경고 사유</th>
+                    <th>최근 경고 관리자</th>
+                    <th>최근 경고 시간</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user_data in warnings %}
+                <tr>
+                    <td>{{ user_data.user_id }}</td>
+                    <td>{{ user_data.username }}</td>
+                    <td>{{ user_data.warnings|length }}</td>
+                    <td>{{ user_data.warnings[0].reason }}</td>
+                    <td>{{ user_data.warnings[0].moderator_name }}</td>
+                    <td>{{ user_data.warnings[0].timestamp.strftime('%Y-%m-%d %H:%M') }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p>경고 정보가 없습니다.</p>
+        {% endif %}
+
+        <h3 style="margin-top: 40px;">티켓 정보</h3>
+        {% if tickets %}
+        <table>
+            <thead>
+                <tr>
+                    <th>티켓 ID</th>
+                    <th>개설자 이름</th>
+                    <th>사유</th>
+                    <th>상태</th>
+                    <th>개설 채널</th>
+                    <th>개설 시간</th>
+                    <th>종료 시간</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for ticket in tickets %}
+                <tr>
+                    <td>{{ ticket.id }}</td>
+                    <td>{{ ticket.username }}</td>
+                    <td>{{ ticket.reason }}</td>
+                    <td>{{ ticket.status }}</td>
+                    <td>{{ ticket.channel_id }}</td>
+                    <td>{{ ticket.opened_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                    <td>{% if ticket.closed_at %}{{ ticket.closed_at.strftime('%Y-%m-%d %H:%M') }}{% else %}진행 중{% endif %}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p>티켓 정보가 없습니다.</p>
+        {% endif %}
+    </div>
+{% endblock %}

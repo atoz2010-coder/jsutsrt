@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}대시보드{% endblock %} | 저스트봇</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
+</head>
+<body class="dashboard-body">
+    <header>
+        <div class="header-content">
+            <div class="logo">
+                <img src="{{ url_for('static', filename='discord-logo.png') }}" alt="Discord Logo" class="header-logo">
+                저스트봇
+            </div>
+            <nav class="main-nav">
+                <ul>
+                    {# "서버 선택" 링크는 서버 선택 화면으로 이동 #}
+                    <li><a href="{{ url_for('select_server') }}">서버 선택</a></li>
+                    <li><a href="{{ url_for('logout') }}">로그아웃</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <div class="dashboard-wrapper">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h3>{{ guild_name }}</h3>
+                <span class="guild-id-display">ID: {{ guild_id }}</span>
+            </div>
+            <nav class="sidebar-nav">
+                <ul>
+                    <li><a href="{{ url_for('dashboard', guild_id=guild_id) }}" class="{% if request.endpoint == 'dashboard' %}active{% endif %}">개요</a></li>
+                    <li><a href="{{ url_for('bank_data', guild_id=guild_id) }}" class="{% if request.endpoint == 'bank_data' %}active{% endif %}">은행</a></li>
+                    <li><a href="{{ url_for('moderation_data', guild_id=guild_id) }}" class="{% if request.endpoint == 'moderation_data' %}active{% endif %}">모더레이션</a></li>
+                    <li><a href="{{ url_for('car_data', guild_id=guild_id) }}" class="{% if request.endpoint == 'car_data' %}active{% endif %}">차량</a></li>
+                    <li><a href="{{ url_for('game_data', guild_id=guild_id) }}" class="{% if request.endpoint == 'game_data' %}active{% endif %}">게임</a></li>
+                    <li><a href="{{ url_for('settings_list', guild_id=guild_id) }}" class="{% if request.endpoint == 'settings_list' %}active{% endif %}">설정</a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <main class="dashboard-content-area">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    <ul class="flashes">
+                        {% for category, message in messages %}
+                            <li class="{{ category }}">{{ message }}</li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+            {% endwith %}
+            {% block dashboard_content %}{% endblock %} {# 개별 페이지 콘텐츠가 여기에 렌더링됨 #}
+        </main>
+    </div>
+
+    <footer>
+        <p>&copy; 2024 저스트봇. all rights reserved.</p>
+        <div class="footer-links">
+            <a href="https://justbot.infy.uk" target="_blank">홈페이지</a>
+            <a href="https://tosjbot.infy.uk" target="_blank">이용약관</a>
+            <a href="https://privacyjbot.infy.uk" target="_blank">개인정보처리방침</a>
+        </div>
+    </footer>
+</body>
+</html>
